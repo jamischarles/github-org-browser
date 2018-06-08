@@ -17,13 +17,21 @@ var CommitList = props => {
     var {date, author, author_url, url} = item;
     return (
       <li style={css.commitListItem} key={i}>
-        {item.message} on{' '}
-        <a href={url} title="Show diff" target="_blank">
-          {date}
-        </a>{' '}
-        by{' '}
-        <a target="_blank" title="Show author" href={author_url}>
+        <span>{item.message}</span> by{' '}
+        <a
+          style={{color: 'inherit'}}
+          target="_blank"
+          title="Show author"
+          href={author_url}>
           {author}
+        </a>{' '}
+        on{' '}
+        <a
+          style={{color: 'inherit'}}
+          href={url}
+          title="Show diff"
+          target="_blank">
+          {date}
         </a>
       </li>
     );
@@ -85,8 +93,10 @@ RecentCommits.propTypes = {
 var css = {
   commitList: {listStyle: 'none'},
   commitListItem: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 10,
+    fontSize: 13,
+    lineHeight: '18px',
+    // color: '#666',
+    color: '#353535',
+    marginBottom: 12,
   },
 };

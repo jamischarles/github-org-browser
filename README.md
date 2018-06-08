@@ -16,6 +16,6 @@ Running it locally
 Tested with Node 8.
 
 
-Screenshot
+Demo
 ========
-![](https://raw.github.com/jamischarles/beastie/master/screenshots/preview.png)
+![](https://raw.github.com/jamischarles/github-org-browser/master/screenshots/demo.gif)
