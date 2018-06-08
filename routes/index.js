@@ -8,21 +8,20 @@ router.get('/', function(req, res, next) {
   res.render('index', {title: 'Index'});
 });
 
-// router.get('/org/:org', async (req, res, next) => {
-//   var org = req.params.org;
-//   var repos = await githubModel.getRepoListForOrg(org);
-//   console.log('repos', repos);
-//   res.render('orgviewer', {title: 'Org Viewer', org: org, repoList: repos});
-// });
-
 /**
  * JSON data routes
  */
-
 router.get('/org/:org', async function(req, res, next) {
   var org = req.params.org;
-  var repos = await githubModel.getRepoListForOrg(org);
-  // TODO: add err handling
+  try {
+    var repos = await githubModel.getRepoListForOrg(org);
+  } catch (e) {
+    var status = e.response.status;
+    if (status > 400) {
+      return res.sendStatus(404);
+    }
+  }
+
   res.json({
     org,
     repos,

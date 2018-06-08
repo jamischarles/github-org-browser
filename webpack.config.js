@@ -6,7 +6,7 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, '.build', 'js'),
   },
-  mode: 'development', // FIXME: add flag for this
+  mode: 'development', // TODO: add flag for prod
   module: {
     rules: [
       {
@@ -15,11 +15,7 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            // presets: ['env', 'react'],
             presets: ['react'],
-            // "babel": {
-            //   "presets": ["env", "react", "stage-2"]
-            // },
           },
         },
       },

@@ -14,11 +14,15 @@ var CommitList = props => {
   var {list} = props;
 
   var history = list.map((item, i) => {
-    var {date, author, author_url} = item;
+    var {date, author, author_url, url} = item;
     return (
       <li style={css.commitListItem} key={i}>
-        {item.message} on {date} by{' '}
-        <a target="_blank" href={author_url}>
+        {item.message} on{' '}
+        <a href={url} title="Show diff" target="_blank">
+          {date}
+        </a>{' '}
+        by{' '}
+        <a target="_blank" title="Show author" href={author_url}>
           {author}
         </a>
       </li>
@@ -62,7 +66,9 @@ export default class RecentCommits extends React.Component {
     } else {
       return (
         <div>
-          <button onClick={this.hideCommitHistory}>Hide recent commits</button>
+          <button style={{marginBottom: 5}} onClick={this.hideCommitHistory}>
+            Hide recent commits
+          </button>
           <CommitList list={this.state.commitHistory} />
           <button onClick={this.hideCommitHistory}>Hide commit history</button>
         </div>
@@ -74,7 +80,6 @@ export default class RecentCommits extends React.Component {
 RecentCommits.propTypes = {
   orgName: PropTypes.string.isRequired,
   repoName: PropTypes.string.isRequired,
-  // orgList: PropTypes.array,
 };
 
 var css = {

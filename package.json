@@ -5,6 +5,7 @@
   "scripts": {
     "start": "NODE_ENV=production node ./bin/www",
     "start:dev": "concurrently \"node ./bin/www\" \"webpack -w\"",
+    "build": "webpack -p",
     "inspect": "node --inspect ./bin/www"
   },
   "babel": {

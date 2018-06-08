@@ -5,13 +5,11 @@ import axios from 'axios';
 import RepoList from './components/repo-list';
 
 // main component
-// FIXME: how do we load the data? Ajax route? Or just render it ?
-// Let's do ajax route for now...
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      githubOrg: '',
+      inputVal: '',
       selectedOrg: '',
     };
     this.updateOrgInput = this.updateOrgInput.bind(this);
@@ -21,12 +19,12 @@ class App extends React.Component {
   // FIXME: can I just use a ref? Simplify?
   updateOrgInput(e) {
     this.setState({
-      githubOrg: e.target.value,
+      inputVal: e.target.value,
     });
   }
   fetchRepoList() {
     this.setState({
-      selectedOrg: this.state.githubOrg,
+      selectedOrg: this.state.inputVal,
     });
   }
   handleInputEnterKey(e) {
@@ -36,16 +34,13 @@ class App extends React.Component {
   }
   componentDidMount() {}
   render() {
-    // render the input somewhere...
-    //
-    //
     return (
       <div style={{maxWidth: 710}}>
         <p>Select a GitHub organization to browse </p>
         <input
           className="search"
           style={css.input}
-          value={this.props.githubOrg}
+          value={this.props.inputVal}
           placeholder="Enter GitHub organization name"
           onChange={this.updateOrgInput}
           onKeyUp={this.handleInputEnterKey}

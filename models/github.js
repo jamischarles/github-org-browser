@@ -11,8 +11,8 @@ async function getRepoListForOrg(org) {
     return processRepos(result.data);
     // console.log('result', r);
   } catch (e) {
-    // FIXME: throw err?
     console.log('e', e);
+    throw e;
   }
 }
 
@@ -22,13 +22,12 @@ async function getCommitListForRepo(org, repo) {
     var result = await axios.get(url);
     return processCommitHistory(result.data);
   } catch (e) {
-    // FIXME: throw err?
     console.log('e', e);
+    throw e;
   }
 }
 
 // UTIL functions... TODO: move into utils file at eventually
-// FIXME: change fn name...
 function processRepos(repoList = []) {
   var list = [];
 

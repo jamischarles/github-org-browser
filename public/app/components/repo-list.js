@@ -9,6 +9,7 @@ export default class RepoList extends React.Component {
     super();
     this.state = {
       sortBy: 'forkCount',
+      errorMsg: '',
     };
 
     this.fetchRepoList = this.fetchRepoList.bind(this);
@@ -32,10 +33,18 @@ export default class RepoList extends React.Component {
       .then(response => {
         this.setState({
           repoList: response.data.repos,
+          errorMsg: '',
         });
       })
-      .catch(function(error) {
-        console.log(error);
+      .catch(error => {
+        if (error.response.status > 400) {
+          this.setState({
+            errorMsg:
+              'That GitHub organization does not exist. Please change the search term. ',
+            repoList: undefined,
+          });
+        }
+        console.log('error', error);
       });
   }
   updateSorting(e) {
@@ -53,6 +62,9 @@ export default class RepoList extends React.Component {
       }
       return 0;
     });
+  }
+  renderError() {
+    return <div style={css.errorMsg}>{this.state.errorMsg}</div>;
   }
   render() {
     var {orgName} = this.props;
@@ -94,6 +106,8 @@ export default class RepoList extends React.Component {
           </h2>
         </div>
 
+        {this.state.errorMsg && this.renderError()}
+
         <ul style={css.repoList}>{list}</ul>
       </div>
     );
@@ -132,5 +146,11 @@ var css = {
     // borderRadius: 9,
     marginBottom: 10,
     padding: '5px 15px 10px 15px',
+  },
+  errorMsg: {
+    backgroundColor: '#ff4949',
+    padding: 12,
+    border: '1px solid #b90000',
+    color: 'white',
   },
 };
