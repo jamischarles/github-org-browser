@@ -16,7 +16,6 @@ class App extends React.Component {
     this.fetchRepoList = this.fetchRepoList.bind(this);
     this.handleInputEnterKey = this.handleInputEnterKey.bind(this);
   }
-  // FIXME: can I just use a ref? Simplify?
   updateOrgInput(e) {
     this.setState({
       inputVal: e.target.value,
