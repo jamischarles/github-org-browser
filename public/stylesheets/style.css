@@ -71,3 +71,19 @@ a {
 .git-meta {
   background-color: #f1f8ff;
 }
+
+.truncate {
+  /* display: inline-block; */
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hoverLinkStyle {
+  cursor: pointer;
+}
+
+.hoverLinkStyle:hover {
+  text-decoration: underline;
+}

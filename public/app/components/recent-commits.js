@@ -3,40 +3,6 @@ import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import axios from 'axios';
 
-// FIXME: move this to utils
-function processDiff(rawDiff) {
-  var lines = rawDiff.split('\n');
-  var metaBlock = false;
-
-  // color diff lines
-  var output = lines.map((line, i) => {
-    var className = '';
-
-    // color meta block
-    if ((metaBlock && !line.startsWith('@@ ')) || line.startsWith('diff ')) {
-      className = 'git-meta';
-      metaBlock = true; //start metablock
-    } else if (line.startsWith('@@ ')) {
-      className = 'git-meta';
-      metaBlock = false; //end metablock
-    }
-
-    if (!metaBlock && line.startsWith('+')) {
-      className = 'git-add';
-    } else if (!metaBlock && line.startsWith('-')) {
-      className = 'git-remove';
-    }
-
-    return (
-      <pre key={i} style={css.preRow} className={className}>
-        {line}
-      </pre>
-    );
-  });
-  // var output = rawDiff.replace(/^\+/, 'hi');
-  return output;
-}
-
 var LoadCommitHistoryButton = props => {
   return (
     <button type="button" onClick={props.clickHandler}>
@@ -51,8 +17,7 @@ class CommitListItem extends React.Component {
     this.state = {
       isOpen: false,
       diff: '',
-      // diffUrl: get(props, 'details.html_url') + '.diff', // FIXME: add Get
-      diffUrl: get(props, 'details.url'), // FIXME: add Get
+      diffUrl: get(props, 'details.url'),
     };
 
     this.toggleListItem = this.toggleListItem.bind(this);
@@ -61,20 +26,16 @@ class CommitListItem extends React.Component {
   toggleListItem() {
     this.setState({
       isOpen: !this.state.isOpen,
+      diff: '',
     });
 
-    this.fetchDiff();
+    if (!this.state.diff) {
+      this.fetchDiff();
+    }
   }
   fetchDiff() {
-    // if (!this.state.diff) {
-    // }
-    //
-    //
     var url = this.state.diffUrl;
 
-    // FIXME: add spinner...
-    //
-    //
     var opt = {
       method: 'GET',
       headers: {
@@ -96,41 +57,49 @@ class CommitListItem extends React.Component {
   }
 
   render() {
+    var messageClass;
     var {details} = this.props;
-    // FIXME: use _get?
-    // var {date, author, author_url, url} = item;
 
-    var author = details.commit.author.name;
+    var author = get(details, 'commit.author.name');
     var author_url = get(details, 'author.html_url');
     var message = get(details, 'commit.message');
     var url = details.html_url;
     var date = get(details, 'commit.author.date');
 
     // short desc if collapsed
-    if (!this.state.isOpen) {
-      return <div onClick={this.toggleListItem}>{author}</div>;
+    if (this.state.isOpen) {
+      messageClass = 'hoverLinkStyle';
+    } else {
+      messageClass = 'truncate hoverLinkStyle';
     }
 
-    // long desc after expanding
     return (
       <div>
-        <span style={css.long.message}>{message}</span> by{' '}
-        <a
-          style={{color: 'inherit'}}
-          target="_blank"
-          title="Show author"
-          href={author_url}>
-          {author}
-        </a>{' '}
-        on{' '}
-        <a
-          style={{color: 'inherit'}}
-          href={url}
-          title="Show diff"
-          target="_blank">
-          {date}
-        </a>
-        <div style={css.commitDiff}>{this.state.diff}</div>
+        <p
+          onClick={this.toggleListItem}
+          className={messageClass}
+          title={message}
+          style={css.long.message}>
+          {message}
+        </p>{' '}
+        <div style={css.meta}>
+          {details.sha.substring(0, 7)} by{' '}
+          <a
+            style={{color: 'inherit'}}
+            target="_blank"
+            title="View author on GitHub"
+            href={author_url}>
+            {author}
+          </a>{' '}
+          <a
+            style={{color: 'inherit'}}
+            href={url}
+            title="View diff on GitHub"
+            target="_blank">
+            {date}
+          </a>
+        </div>
+        {this.state.diff && <div style={css.commitDiff}>{this.state.diff}</div>}
       </div>
     );
   }
@@ -211,14 +180,20 @@ RecentCommits.propTypes = {
 };
 
 var css = {
+  meta: {
+    fontSize: 12,
+    marginLeft: 7,
+  },
   long: {
     message: {
       backgroundColor: 'white',
       border: '1px solid #eee',
       padding: '2px 6px',
+      marginBottom: 0,
+      marginTop: 0,
     },
   },
-  commitList: {listStyle: 'none'},
+  commitList: {listStyle: 'none', paddingLeft: 20},
   commitListItem: {
     fontSize: 13,
     lineHeight: '18px',
@@ -231,9 +206,44 @@ var css = {
     margin: 0,
   },
   commitDiff: {
-    border: '1px solid #eee',
+    border: '3px solid #eee',
     overflow: 'scroll',
     fontSize: 12,
+    marginTop: 20,
     // whiteSpace: 'pre-wrap',
   },
 };
+
+// TODO: move this to utils file
+function processDiff(rawDiff) {
+  var lines = rawDiff.split('\n');
+  var metaBlock = false;
+
+  // color diff lines
+  var output = lines.map((line, i) => {
+    var className = '';
+
+    // color meta block
+    if ((metaBlock && !line.startsWith('@@ ')) || line.startsWith('diff ')) {
+      className = 'git-meta';
+      metaBlock = true; //start metablock
+    } else if (line.startsWith('@@ ')) {
+      className = 'git-meta';
+      metaBlock = false; //end metablock
+    }
+
+    if (!metaBlock && line.startsWith('+')) {
+      className = 'git-add';
+    } else if (!metaBlock && line.startsWith('-')) {
+      className = 'git-remove';
+    }
+
+    return (
+      <pre key={i} style={css.preRow} className={className}>
+        {line}
+      </pre>
+    );
+  });
+  // var output = rawDiff.replace(/^\+/, 'hi');
+  return output;
+}
