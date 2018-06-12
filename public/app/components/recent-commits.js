@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
+import get from 'lodash/get';
 
 var LoadCommitHistoryButton = props => {
   return (
@@ -14,10 +14,18 @@ var CommitList = props => {
   var {list} = props;
 
   var history = list.map((item, i) => {
-    var {date, author, author_url, url} = item;
+    // FIXME: use _get?
+    // var {date, author, author_url, url} = item;
+
+    var author = item.commit.author.name;
+    var author_url = get(item, 'author.html_url');
+    var message = get(item, 'commit.message');
+    var url = item.html_url;
+    var date = get(item, 'commit.author.date');
+
     return (
       <li style={css.commitListItem} key={i}>
-        <span>{item.message}</span> by{' '}
+        <span>{message}</span> by{' '}
         <a
           style={{color: 'inherit'}}
           target="_blank"
@@ -50,15 +58,21 @@ export default class RecentCommits extends React.Component {
   }
   loadCommitHistory() {
     var {orgName, repoName} = this.props;
-    axios
-      .get(`/org/${orgName}/${repoName}/commits`)
+
+    var url = `https://api.github.com/repos/${orgName}/${repoName}/commits`;
+
+    fetch(url)
       .then(response => {
+        return response.json();
+      })
+      .then(commitList => {
         this.setState({
-          commitHistory: response.data.commitList,
+          commitHistory: commitList,
         });
       })
-      .catch(function(error) {
-        console.log(error);
+      .catch(error => {
+        // FIXME: add error state
+        console.log('error', error);
       });
   }
   hideCommitHistory() {

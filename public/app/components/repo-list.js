@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
 
 import RecentCommits from './recent-commits';
 
@@ -28,15 +27,22 @@ export default class RepoList extends React.Component {
   }
   fetchRepoList() {
     var {orgName} = this.props;
-    axios
-      .get(`/org/${orgName}`)
+
+    var url = `https://api.github.com/orgs/${orgName}/repos`;
+    // FIXME: move this somewhere else?
+    fetch(url)
       .then(response => {
+        return response.json();
+      })
+      .then(repos => {
+        // console.log('repo response', myJson);
         this.setState({
-          repoList: response.data.repos,
+          repoList: repos,
           errorMsg: '',
         });
       })
       .catch(error => {
+        // FIXME: test the response type with fetch...
         if (error.response.status > 400) {
           this.setState({
             errorMsg:

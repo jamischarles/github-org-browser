@@ -4,7 +4,7 @@ module.exports = {
   entry: './public/app/index.js',
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, '.build', 'js'),
+    path: path.resolve(__dirname, 'public', 'build'),
   },
   mode: 'development', // TODO: add flag for prod
   module: {
