@@ -7,6 +7,10 @@ This is a React SPA. React entry file can be found at `public/app/index.js`
 - React Router 
 - Inline React styles for CSS.
 
+Demo
+========
+![](https://raw.github.com/jamischarles/github-org-browser/master/screenshots/demo.gif)
+
 Running it locally
 ========
 1. `git clone https://github.com/jamischarles/github-org-browser.git`
@@ -23,6 +27,3 @@ Framework context
 React and React Router work really well for this kind of app. No server needed.
 No redux needed.
 
-Demo
-========
-![](https://raw.github.com/jamischarles/github-org-browser/master/screenshots/demo.gif)
