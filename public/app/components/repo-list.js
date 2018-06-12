@@ -4,9 +4,10 @@ import PropTypes from 'prop-types';
 import RecentCommits from './recent-commits';
 
 export default class RepoList extends React.Component {
-  constructor() {
+  constructor(props) {
     super();
     this.state = {
+      orgName: props.match.params.orgName, // pulled from the url. FIXME: add get(?
       sortBy: 'forkCount',
       errorMsg: '',
     };
@@ -21,12 +22,13 @@ export default class RepoList extends React.Component {
   // called when input changes subsequent times
   componentDidUpdate(prevProps) {
     // only make ajax calls when orgName actually changes
+    // FIXME: update this?
     if (prevProps.orgName != this.props.orgName) {
       this.fetchRepoList();
     }
   }
   fetchRepoList() {
-    var {orgName} = this.props;
+    var {orgName} = this.state;
 
     var url = `https://api.github.com/orgs/${orgName}/repos`;
     // FIXME: move this somewhere else?
@@ -73,8 +75,7 @@ export default class RepoList extends React.Component {
     return <div style={css.errorMsg}>{this.state.errorMsg}</div>;
   }
   render() {
-    var {orgName} = this.props;
-    var {repoList = []} = this.state;
+    var {orgName, repoList = []} = this.state;
 
     var sortedList = this.sortList(this.state.sortBy, repoList);
 
@@ -82,7 +83,7 @@ export default class RepoList extends React.Component {
       return (
         <li key={i} style={css.repoItem}>
           <p style={css.repoMetrics}>
-            {item.starCount} stars | {item.forkCount} forks
+            {item.stargazers_count} stars | {item.forks_count} forks
           </p>
           <h3 style={css.repoTitle}>
             <a style={css.repoTitleLink} target="_blank" href={item.html_url}>
@@ -90,7 +91,11 @@ export default class RepoList extends React.Component {
             </a>
           </h3>
           <p>{item.description}</p>
-          <RecentCommits orgName={orgName} repoName={item.name} />
+          <RecentCommits
+            {...this.props}
+            orgName={orgName}
+            repoName={item.name}
+          />
         </li>
       );
     });
@@ -121,7 +126,6 @@ export default class RepoList extends React.Component {
 }
 
 RepoList.propTypes = {
-  orgName: PropTypes.string.isRequired,
   orgList: PropTypes.array,
 };
 

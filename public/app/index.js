@@ -1,44 +1,59 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {BrowserRouter, Route, Link} from 'react-router-dom';
 
 import RepoList from './components/repo-list';
 
 // main component
-class App extends React.Component {
-  constructor() {
+class Main extends React.Component {
+  constructor(props) {
     super();
     this.state = {
-      inputVal: '',
-      selectedOrg: '',
+      inputVal: props.match.params.orgName || '', // FIXME: use get
+      selectedOrg: props.match.params.orgName || '', //FIXME use get
     };
     this.updateOrgInput = this.updateOrgInput.bind(this);
     this.fetchRepoList = this.fetchRepoList.bind(this);
     this.handleInputEnterKey = this.handleInputEnterKey.bind(this);
   }
   updateOrgInput(e) {
+    var newVal = e.target.value;
     this.setState({
-      inputVal: e.target.value,
+      inputVal: newVal,
+      selectedOrg: '',
+    });
+
+    this.props.history.replace(`/org/${newVal}`);
+  }
+  clearInput() {
+    this.setState({
+      inputVal: '',
+      selectedOrg: '',
     });
   }
   fetchRepoList() {
-    this.setState({
-      selectedOrg: this.state.inputVal,
-    });
+    this.setState(
+      {
+        selectedOrg: this.state.inputVal,
+      },
+      () => {
+        this.props.history.push(`/org/${this.state.selectedOrg}`);
+      },
+    );
   }
   handleInputEnterKey(e) {
     if (e.key === 'Enter') {
       this.fetchRepoList();
     }
   }
-  componentDidMount() {}
   render() {
     return (
       <div style={{maxWidth: 710}}>
-        <p>Select a GitHub organization to browse </p>
+        <p>Select a GitHob organization to browse </p>
         <input
           className="search"
           style={css.input}
-          value={this.props.inputVal}
+          value={this.state.inputVal}
           placeholder="Enter GitHub organization name"
           onChange={this.updateOrgInput}
           onKeyUp={this.handleInputEnterKey}
@@ -46,15 +61,25 @@ class App extends React.Component {
         <button style={css.button} onClick={this.fetchRepoList}>
           Submit
         </button>
+
+        <Link onClick={this.clearInput} to="/">
+          Clear
+        </Link>
         <div style={{paddingTop: 40}}>
           {this.state.selectedOrg && (
-            <RepoList orgName={this.state.selectedOrg} />
+            <Route
+              path={`/org/:orgName`}
+              render={props => <RepoList {...props} />}
+            />
           )}
         </div>
       </div>
     );
   }
 }
+
+// optional params so we can pass orgName to input on refresh
+var App = props => <Route path="/:org?/:orgName?" component={Main} />;
 
 var css = {
   button: {
@@ -69,4 +94,9 @@ var css = {
   },
 };
 
-ReactDOM.render(<App />, document.querySelector('.main-container'));
+ReactDOM.render(
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>,
+  document.querySelector('.main-container'),
+);

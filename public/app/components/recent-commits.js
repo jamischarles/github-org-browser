@@ -58,6 +58,7 @@ export default class RecentCommits extends React.Component {
   }
   loadCommitHistory() {
     var {orgName, repoName} = this.props;
+    console.log('this.props', this.props);
 
     var url = `https://api.github.com/repos/${orgName}/${repoName}/commits`;
 
