@@ -8,11 +8,12 @@ export default class RepoList extends React.Component {
     super();
     this.state = {
       orgName: props.match.params.orgName, // pulled from the url. FIXME: add get(?
-      sortBy: 'forkCount',
+      sortBy: 'forks_count',
       errorMsg: '',
     };
 
     this.fetchRepoList = this.fetchRepoList.bind(this);
+    this._fetchRepoList = this._fetchRepoList.bind(this);
     this.updateSorting = this.updateSorting.bind(this);
   }
   // Called first time list is rendered
@@ -27,7 +28,12 @@ export default class RepoList extends React.Component {
       this.fetchRepoList();
     }
   }
+
   fetchRepoList() {
+    // delay by a tiny bit so we don't get disorienting flash of spinner
+    setTimeout(this._fetchRepoList, 500);
+  }
+  _fetchRepoList() {
     var {orgName} = this.state;
 
     var url = `https://api.github.com/orgs/${orgName}/repos`;
@@ -61,18 +67,26 @@ export default class RepoList extends React.Component {
     });
   }
   sortList(sortBy, list) {
-    return list.sort((a, b) => {
-      if (a[sortBy] < b[sortBy]) {
+    var sorted = list.sort((a, b) => {
+      if (a[sortBy] > b[sortBy]) {
         return 1;
       }
-      if (a[sortBy] > b[sortBy]) {
+      if (a[sortBy] < b[sortBy]) {
         return -1;
       }
       return 0;
     });
+
+    if (sortBy === 'forks_count') {
+      sorted.reverse();
+    }
+    return sorted;
   }
   renderError() {
     return <div style={css.errorMsg}>{this.state.errorMsg}</div>;
+  }
+  renderLoader() {
+    return <div className="loader" />;
   }
   render() {
     var {orgName, repoList = []} = this.state;
@@ -106,8 +120,8 @@ export default class RepoList extends React.Component {
           <div style={{float: 'right'}}>
             Sort by{' '}
             <select value={this.state.sortBy} onChange={this.updateSorting}>
-              <option value="forkCount">Popularity</option>
-              <option value="starCount">Vanity Metrics</option>
+              <option value="forks_count">Popularity</option>
+              <option value="name">A-Z</option>
             </select>
           </div>
           <h2>
@@ -118,6 +132,8 @@ export default class RepoList extends React.Component {
         </div>
 
         {this.state.errorMsg && this.renderError()}
+
+        {!this.state.repoList && this.renderLoader()}
 
         <ul style={css.repoList}>{list}</ul>
       </div>
