@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import get from 'lodash/get';
 
 import RecentCommits from './recent-commits';
 
@@ -7,7 +8,7 @@ export default class RepoList extends React.Component {
   constructor(props) {
     super();
     this.state = {
-      orgName: props.match.params.orgName, // pulled from the url. FIXME: add get(?
+      orgName: get(props, 'match.params.orgName'), // pulled from the url.
       sortBy: 'forks_count',
       errorMsg: '',
     };
@@ -23,12 +24,10 @@ export default class RepoList extends React.Component {
   // called when input changes subsequent times
   componentDidUpdate(prevProps) {
     // only make ajax calls when orgName actually changes
-    // FIXME: update this?
     if (prevProps.orgName != this.props.orgName) {
       this.fetchRepoList();
     }
   }
-
   fetchRepoList() {
     // delay by a tiny bit so we don't get disorienting flash of spinner
     setTimeout(this._fetchRepoList, 500);
@@ -37,27 +36,23 @@ export default class RepoList extends React.Component {
     var {orgName} = this.state;
 
     var url = `https://api.github.com/orgs/${orgName}/repos`;
-    // FIXME: move this somewhere else?
     fetch(url)
       .then(response => {
+        if (response.status > 400) throw response.statusText;
         return response.json();
       })
       .then(repos => {
-        // console.log('repo response', myJson);
         this.setState({
           repoList: repos,
           errorMsg: '',
         });
       })
       .catch(error => {
-        // FIXME: test the response type with fetch...
-        if (error.response.status > 400) {
-          this.setState({
-            errorMsg:
-              'That GitHub organization does not exist. Please change the search term. ',
-            repoList: undefined,
-          });
-        }
+        this.setState({
+          errorMsg:
+            'That GitHub organization does not exist. Please change the search term. ',
+          repoList: undefined,
+        });
         console.log('error', error);
       });
   }
@@ -133,7 +128,7 @@ export default class RepoList extends React.Component {
 
         {this.state.errorMsg && this.renderError()}
 
-        {!this.state.repoList && this.renderLoader()}
+        {!this.state.repoList && !this.state.errorMsg && this.renderLoader()}
 
         <ul style={css.repoList}>{list}</ul>
       </div>

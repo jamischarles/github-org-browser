@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {BrowserRouter, Route, Link} from 'react-router-dom';
+import get from 'lodash/get';
 
 import RepoList from './components/repo-list';
 
@@ -9,8 +10,9 @@ class Main extends React.Component {
   constructor(props) {
     super();
     this.state = {
-      inputVal: props.match.params.orgName || '', // FIXME: use get
-      selectedOrg: props.match.params.orgName || '', //FIXME use get
+      // allows refresh
+      inputVal: get(props, 'match.params.orgName') || '',
+      selectedOrg: get(props, 'match.params.orgName') || '',
     };
     this.updateOrgInput = this.updateOrgInput.bind(this);
     this.fetchRepoList = this.fetchRepoList.bind(this);
@@ -62,7 +64,7 @@ class Main extends React.Component {
           Submit
         </button>
 
-        <Link onClick={this.clearInput} to="/">
+        <Link className="hoverLinkStyle" onClick={this.clearInput} to="/">
           Clear
         </Link>
         <div style={{paddingTop: 40}}>
@@ -85,6 +87,7 @@ var css = {
   button: {
     fontSize: 14,
     padding: 10,
+    marginRight: 10,
   },
   input: {
     fontSize: 14,

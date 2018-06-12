@@ -5,7 +5,10 @@ import axios from 'axios';
 
 var LoadCommitHistoryButton = props => {
   return (
-    <button type="button" onClick={props.clickHandler}>
+    <button
+      style={css.toggleCommitsBtn}
+      type="button"
+      onClick={props.clickHandler}>
       Show recent commits
     </button>
   );
@@ -16,11 +19,13 @@ class CommitListItem extends React.Component {
     super();
     this.state = {
       isOpen: false,
+      isLoading: false,
       diff: '',
       diffUrl: get(props, 'details.url'),
     };
 
     this.toggleListItem = this.toggleListItem.bind(this);
+    this._fetchDiff = this._fetchDiff.bind(this);
     this.fetchDiff = this.fetchDiff.bind(this);
   }
   toggleListItem() {
@@ -33,7 +38,13 @@ class CommitListItem extends React.Component {
       this.fetchDiff();
     }
   }
+
   fetchDiff() {
+    this.setState({isLoading: true});
+    // delay by a tiny bit so we don't get disorienting flash of spinner
+    setTimeout(this._fetchDiff, 400);
+  }
+  _fetchDiff() {
     var url = this.state.diffUrl;
 
     var opt = {
@@ -49,9 +60,13 @@ class CommitListItem extends React.Component {
       .then(response => {
         this.setState({
           diff: processDiff(response.data),
+          isLoading: false,
         });
       })
-      .catch(function(error) {
+      .catch(error => {
+        this.setState({
+          isLoading: false,
+        });
         console.log(error);
       });
   }
@@ -99,16 +114,12 @@ class CommitListItem extends React.Component {
             {date}
           </a>
         </div>
+        {this.state.isLoading && <div className="loader" />}
         {this.state.diff && <div style={css.commitDiff}>{this.state.diff}</div>}
       </div>
     );
   }
 }
-
-// FIXME
-// <pre style={css.commitDiff}>
-// <code>{this.state.diff}</code>
-// </pre>
 
 var CommitList = props => {
   var {list} = props;
@@ -146,7 +157,6 @@ export default class RecentCommits extends React.Component {
         });
       })
       .catch(error => {
-        // FIXME: add error state
         console.log('error', error);
       });
   }
@@ -163,7 +173,9 @@ export default class RecentCommits extends React.Component {
     } else {
       return (
         <div>
-          <button style={{marginBottom: 5}} onClick={this.hideCommitHistory}>
+          <button
+            style={Object.assign({}, css.toggleCommitsBtn, {marginBottom: 10})}
+            onClick={this.hideCommitHistory}>
             Hide recent commits
           </button>
           <CommitList list={this.state.commitHistory} />
@@ -201,7 +213,10 @@ var css = {
     color: '#353535',
     marginBottom: 12,
   },
-
+  toggleCommitsBtn: {
+    fontSize: 12,
+    padding: '6px 8px',
+  },
   preRow: {
     margin: 0,
   },
