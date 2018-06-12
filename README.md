@@ -1,15 +1,13 @@
 Github Org Browser
 =======
 
+![](https://raw.github.com/jamischarles/github-org-browser/master/screenshots/demo_new.gif)
+
 This is a React SPA. React entry file can be found at `public/app/index.js`
 
 - React 
 - React Router 
 - Inline React styles for CSS.
-
-Demo
-========
-![](https://raw.github.com/jamischarles/github-org-browser/master/screenshots/demo.gif)
 
 Running it locally
 ========
