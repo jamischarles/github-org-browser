@@ -95,7 +95,7 @@ export default class RepoList extends React.Component {
 
     var list = sortedList.map((item, i) => {
       return (
-        <li key={i} style={css.repoItem}>
+        <li key={item.name} style={css.repoItem}>
           <p style={css.repoMetrics}>
             {item.stargazers_count} stars | {item.forks_count} forks
           </p>

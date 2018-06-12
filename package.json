@@ -3,15 +3,19 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start":
-      "concurrently \"http-server -p 3000 -d false -c-1\" \"webpack -w\"",
+    "start": "concurrently \"http-server -p 3000 -d false -c-1\" \"webpack -w\"",
     "build": "webpack -p"
   },
   "babel": {
-    "presets": ["env", "react", "stage-2"]
+    "presets": [
+      "env",
+      "react",
+      "stage-2"
+    ]
   },
   "dependencies": {},
   "devDependencies": {
+    "axios": "^0.18.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.4",
     "babel-preset-env": "^1.7.0",

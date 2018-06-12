@@ -59,3 +59,15 @@ a {
     left: 100%;
   }
 }
+
+.git-add {
+  background-color: #e6ffed;
+}
+
+.git-remove {
+  background-color: #ffeef0;
+}
+
+.git-meta {
+  background-color: #f1f8ff;
+}

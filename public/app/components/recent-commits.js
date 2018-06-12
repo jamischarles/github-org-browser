@@ -1,6 +1,41 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
+import axios from 'axios';
+
+// FIXME: move this to utils
+function processDiff(rawDiff) {
+  var lines = rawDiff.split('\n');
+  var metaBlock = false;
+
+  // color diff lines
+  var output = lines.map((line, i) => {
+    var className = '';
+
+    // color meta block
+    if ((metaBlock && !line.startsWith('@@ ')) || line.startsWith('diff ')) {
+      className = 'git-meta';
+      metaBlock = true; //start metablock
+    } else if (line.startsWith('@@ ')) {
+      className = 'git-meta';
+      metaBlock = false; //end metablock
+    }
+
+    if (!metaBlock && line.startsWith('+')) {
+      className = 'git-add';
+    } else if (!metaBlock && line.startsWith('-')) {
+      className = 'git-remove';
+    }
+
+    return (
+      <pre key={i} style={css.preRow} className={className}>
+        {line}
+      </pre>
+    );
+  });
+  // var output = rawDiff.replace(/^\+/, 'hi');
+  return output;
+}
 
 var LoadCommitHistoryButton = props => {
   return (
@@ -10,22 +45,76 @@ var LoadCommitHistoryButton = props => {
   );
 };
 
-var CommitList = props => {
-  var {list} = props;
+class CommitListItem extends React.Component {
+  constructor(props) {
+    super();
+    this.state = {
+      isOpen: false,
+      diff: '',
+      // diffUrl: get(props, 'details.html_url') + '.diff', // FIXME: add Get
+      diffUrl: get(props, 'details.url'), // FIXME: add Get
+    };
 
-  var history = list.map((item, i) => {
+    this.toggleListItem = this.toggleListItem.bind(this);
+    this.fetchDiff = this.fetchDiff.bind(this);
+  }
+  toggleListItem() {
+    this.setState({
+      isOpen: !this.state.isOpen,
+    });
+
+    this.fetchDiff();
+  }
+  fetchDiff() {
+    // if (!this.state.diff) {
+    // }
+    //
+    //
+    var url = this.state.diffUrl;
+
+    // FIXME: add spinner...
+    //
+    //
+    var opt = {
+      method: 'GET',
+      headers: {
+        'content-type': 'text/plain;charset=UTF-8',
+        Accept: 'application/vnd.github.diff',
+      },
+      url,
+    };
+
+    axios(opt)
+      .then(response => {
+        this.setState({
+          diff: processDiff(response.data),
+        });
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
+  }
+
+  render() {
+    var {details} = this.props;
     // FIXME: use _get?
     // var {date, author, author_url, url} = item;
 
-    var author = item.commit.author.name;
-    var author_url = get(item, 'author.html_url');
-    var message = get(item, 'commit.message');
-    var url = item.html_url;
-    var date = get(item, 'commit.author.date');
+    var author = details.commit.author.name;
+    var author_url = get(details, 'author.html_url');
+    var message = get(details, 'commit.message');
+    var url = details.html_url;
+    var date = get(details, 'commit.author.date');
 
+    // short desc if collapsed
+    if (!this.state.isOpen) {
+      return <div onClick={this.toggleListItem}>{author}</div>;
+    }
+
+    // long desc after expanding
     return (
-      <li style={css.commitListItem} key={i}>
-        <span>{message}</span> by{' '}
+      <div>
+        <span style={css.long.message}>{message}</span> by{' '}
         <a
           style={{color: 'inherit'}}
           target="_blank"
@@ -41,9 +130,25 @@ var CommitList = props => {
           target="_blank">
           {date}
         </a>
-      </li>
+        <div style={css.commitDiff}>{this.state.diff}</div>
+      </div>
     );
-  });
+  }
+}
+
+// FIXME
+// <pre style={css.commitDiff}>
+// <code>{this.state.diff}</code>
+// </pre>
+
+var CommitList = props => {
+  var {list} = props;
+
+  var history = list.map(item => (
+    <li style={css.commitListItem} key={item.sha}>
+      <CommitListItem details={item} />
+    </li>
+  ));
 
   return <ul style={css.commitList}>{history}</ul>;
 };
@@ -106,6 +211,13 @@ RecentCommits.propTypes = {
 };
 
 var css = {
+  long: {
+    message: {
+      backgroundColor: 'white',
+      border: '1px solid #eee',
+      padding: '2px 6px',
+    },
+  },
   commitList: {listStyle: 'none'},
   commitListItem: {
     fontSize: 13,
@@ -113,5 +225,15 @@ var css = {
     // color: '#666',
     color: '#353535',
     marginBottom: 12,
+  },
+
+  preRow: {
+    margin: 0,
+  },
+  commitDiff: {
+    border: '1px solid #eee',
+    overflow: 'scroll',
+    fontSize: 12,
+    // whiteSpace: 'pre-wrap',
   },
 };
